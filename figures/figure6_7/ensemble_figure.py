@@ -219,7 +219,7 @@ def profiles(ax, map_axes, letters=("e", "f", "g")):
         m_ax.set_ylim(yc - y_span / 2, yc + y_span / 2)
         m_ax.set_ylabel("y (nm)")
         m_ax.tick_params(labelbottom=False)
-        shown = "parallel" if name == "parallel" else f"edge-following, {p.track_width:g} nm box"
+        shown = "parallel" if name == "parallel" else f"sequential, {p.track_width:g} nm box"
         m_ax.text(0.99, 0.94, f"{shown}, mean of {N_PROFILE_SEEDS} runs", transform=m_ax.transAxes,
                   ha="right", va="top", color=INK, fontsize=7,
                   bbox=dict(fc="#fcfcfb", ec="none", pad=1.2, alpha=0.85))
