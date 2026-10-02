@@ -134,7 +134,7 @@ def panel_c(ax_par, ax_seq, ej_par, ej_seq, rear_seq):
     k = len(rear_seq) // 2
     alive = draw_state(ax_seq, ej_seq, k, box=(rear_seq[k], P.track_width), color=ef.SEQ)
     setup_lattice_ax(ax_seq, VIEW_C)
-    side_label(ax_seq, "edge-following", ef.SEQ)
+    side_label(ax_seq, "sequential", ef.SEQ)
     r = rear_seq[k]
     x_rear = em.XY[alive & G.target, 0].min()
     arrow = dict(arrowstyle="<->", color=ef.INK, lw=0.8, shrinkA=0, shrinkB=0)
@@ -209,13 +209,13 @@ def panel_e(axes, ej_par, ej_seq, rear_seq, c_par, c_seq, times):
             ax.text(0.5, -0.04, f"{off} off-target lost", transform=ax.transAxes, ha="center", va="top",
                     fontsize=6.5, color=OFF)
         axes[0][j].set_title(f"beam time t = {t:.1f}", loc="center", color=ef.INK, fontsize=7.5, pad=14)
-    for r, (lab, col) in enumerate((("parallel", ef.PAR), ("edge-following", ef.SEQ))):
+    for r, (lab, col) in enumerate((("parallel", ef.PAR), ("sequential", ef.SEQ))):
         axes[r][0].text(0.0, 1.03, lab, transform=axes[r][0].transAxes, ha="left", va="bottom", color=col,
                         fontweight="bold", fontsize=7)
 
 
 def panel_f(ax_left, ax_off, ax_box, ej_par, ej_seq, rear_seq, c_par, c_seq):
-    for ej, c, col, lab in ((ej_par, c_par, ef.PAR, "parallel"), (ej_seq, c_seq, ef.SEQ, "edge-following")):
+    for ej, c, col, lab in ((ej_par, c_par, ef.PAR, "parallel"), (ej_seq, c_seq, ef.SEQ, "sequential")):
         n = int(ej.max())
         ks = np.arange(n + 1)
         left = [int((G.target & ((ej == 0) | (ej > k))).sum()) for k in ks]
