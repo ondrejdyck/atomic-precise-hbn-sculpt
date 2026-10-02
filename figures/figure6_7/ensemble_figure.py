@@ -163,19 +163,17 @@ def sensitivity(ax):
     ax.set_ylim(y - 0.4, -2.0)
     ax.set_xlim(X_MIN, 45)
     ax.set_xlabel("Off-target reduction with sequential milling (%)")
-    n_runs = len(load("baseline:")["parallel__steps"])
-    ax.annotate(f"(1 − mean sequential / mean parallel; {n_runs} paired runs, identical per-atom thresholds)", xy=(0.5, 0),
-                xycoords=ax.xaxis.label, xytext=(0, -1), textcoords="offset points", ha="center",
-                va="top", fontsize=6.5, color=MUTED)
     ax.text(1, -1.3, "sequential better →", color=MUTED, va="center", ha="left", fontsize=6.5)
     ax.text(-1, -1.3, "← parallel better", color=MUTED, va="center", ha="right", fontsize=6.5)
     ax.grid(axis="x", color=GRID, lw=0.6)
     ax.set_axisbelow(True)
-    ax.scatter([], [], color=M_ATOMS, marker="o", label="off-target atoms ejected")
+    ax.scatter([], [], color=M_ATOMS, marker="o", label="atoms\nejected")
     ax.scatter([], [], facecolors="#fcfcfb", edgecolors=M_DOSE, linewidths=1.1, marker="D",
-               label="total off-target dose")
-    ax.legend(loc="lower left", bbox_to_anchor=(-0.02, 1.0), ncol=2, handletextpad=0.3, columnspacing=1.0, fontsize=7)
-    ax.set_title("Off-target reduction vs. model parameters", loc="left", color=INK, pad=16)
+               label="dose")
+    ax.legend(loc="lower left", handletextpad=0.3, fontsize=6.5, framealpha=0.95, facecolor="#ffffff",
+              edgecolor="none", borderaxespad=0.3, title="off-target", title_fontsize=6.5,
+              alignment="left")
+    ax.set_title("Off-target reduction vs. model parameters", loc="left", color=INK)
     return header_texts
 
 
@@ -311,15 +309,18 @@ def heatmap(ax, summary, metric, title, letter, lim, colorbar=True):
 def main():
     d = load("baseline:")
     fig = plt.figure(figsize=(7.2, 13.0), facecolor="#fcfcfb")
-    gs = fig.add_gridspec(3, 3, height_ratios=[1, 2.35, 1.0], hspace=0.30, wspace=0.75)
+    # rows (a-c) | (d-g) | (h, i): tight gap above (d), room above (h, i) for the (d)/(g) axis labels
+    outer = fig.add_gridspec(2, 1, height_ratios=[1, 3.35 * 1.06], hspace=0.13)
+    gs_top = outer[0].subgridspec(1, 3, wspace=0.75)
+    gs_low = outer[1].subgridspec(2, 1, height_ratios=[2.35, 1.0], hspace=0.2)
     scatter_panels = []
     for i, (metric, scale, title, letter) in enumerate((
             ("offtarget_ejected", 1, "Atoms ejected outside target", "a"),
             ("offtarget_dose", 1e6, "Total off-target dose (10⁶ e⁻)", "b"),
             ("offtarget_max", 1e6, "Peak off-target dose (10⁶ e⁻ nm⁻²)", "c"))):
-        ax = fig.add_subplot(gs[0, i])
+        ax = fig.add_subplot(gs_top[0, i])
         scatter_panels.append((ax, paired(ax, d, metric, scale, title, letter), letter))
-    sub = gs[1, :].subgridspec(1, 2, width_ratios=[1, 1.25], wspace=0.35)
+    sub = gs_low[0].subgridspec(1, 2, width_ratios=[1, 1.25], wspace=0.35)
     ax_d = fig.add_subplot(sub[0, 0])
     headers = sensitivity(ax_d)
     col = sub[0, 1].subgridspec(3, 1, height_ratios=[0.9, 0.9, 1.85], hspace=0.12)
@@ -328,7 +329,7 @@ def main():
     profiles(fig.add_subplot(col[2], sharex=m1), (m1, m2))
     summary = json.loads((OUT / "ensemble_summary.json").read_text())
     heat_axes = []
-    hrow = gs[2, :].subgridspec(1, 2, wspace=0.62)
+    hrow = gs_low[1].subgridspec(1, 2, wspace=0.62)
     for j, (metric, title, letter, lim) in enumerate((
             ("offtarget_ejected", "Off-target atoms ejected", "h", 35),
             ("offtarget_dose", "Total off-target dose", "i", 50))):
