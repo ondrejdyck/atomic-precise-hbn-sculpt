@@ -309,11 +309,11 @@ def heatmap(ax, summary, metric, title, letter, lim, colorbar=True):
 
 def main():
     d = load("baseline:")
-    fig = plt.figure(figsize=(7.2, 10.95), facecolor="#fcfcfb")
+    fig = plt.figure(figsize=(7.2, 10.35), facecolor="#fcfcfb")
     # rows (a-c) | (d-g) | (h, i): tight gap above (d), room above (h, i) for the (d)/(g) axis labels
-    outer = fig.add_gridspec(2, 1, height_ratios=[0.72, 2.99 * 1.06], hspace=0.1)
+    outer = fig.add_gridspec(2, 1, height_ratios=[0.72, 2.76 * 1.06], hspace=0.13)
     gs_top = outer[0].subgridspec(1, 3, wspace=1.45)
-    gs_low = outer[1].subgridspec(2, 1, height_ratios=[2.35, 0.64], hspace=0.26)
+    gs_low = outer[1].subgridspec(2, 1, height_ratios=[2.12, 0.64], hspace=0.26)
     scatter_panels = []
     for i, (metric, scale, title, letter) in enumerate((
             ("offtarget_ejected", 1, "Atoms ejected outside target", "a"),
@@ -324,7 +324,7 @@ def main():
     sub = gs_low[0].subgridspec(1, 2, width_ratios=[1, 1.25], wspace=0.35)
     ax_d = fig.add_subplot(sub[0, 0])
     headers = sensitivity(ax_d)
-    col = sub[0, 1].subgridspec(3, 1, height_ratios=[0.9, 0.9, 1.85], hspace=0.12)
+    col = sub[0, 1].subgridspec(3, 1, height_ratios=[0.9, 0.9, 1.47], hspace=0.12)
     m1 = fig.add_subplot(col[0])
     m2 = fig.add_subplot(col[1], sharex=m1)
     profiles(fig.add_subplot(col[2], sharex=m1), (m1, m2))
