@@ -116,12 +116,9 @@ def sensitivity(ax):
         ("Vacuum margin (FWHM)", lambda k, p: k.startswith("margin_width:")
          and p["track_width"] == em.Params().track_width, lambda p: f"{p['margin_fwhm']:g}"),
         ("Beam width σ (nm)", in_sweep("sigma"), lambda p: f"{p['sigma']:g}"),
-        # the x4 edge and x4 rate settings are run but not shown (fourfold steps beyond the plotted range)
-        ("Edge ejection (× default)", lambda k, p: k.startswith("edge_mult:") and p["edge_B"] < 4 * em.Params().edge_B,
-         lambda p: f"×{p['edge_B'] / em.Params().edge_B:g}"),
+        ("Edge ejection (× default)", in_sweep("edge_mult"), lambda p: f"×{p['edge_B'] / em.Params().edge_B:g}"),
         ("B ejection (× default)", in_sweep("boron_mult"), lambda p: f"×{p['bulk_B'] / em.Params().bulk_B:g}"),
-        ("Ejection-rate scale k", lambda k, p: k.startswith("k_eject:") and p["k_eject"] < 4 * 5e13,
-         lambda p: f"×{p['k_eject'] / 5e13:g}"),
+        ("Ejection-rate scale k", in_sweep("k_eject"), lambda p: f"×{p['k_eject'] / 5e13:g}"),
     ]
     base = em.Params()
     y, ticks, labels, heads = 0, [], [], []
@@ -311,11 +308,11 @@ def heatmap(ax, summary, metric, title, letter, lim, colorbar=True):
 
 def main():
     d = load("baseline:")
-    fig = plt.figure(figsize=(7.2, 12.45), facecolor="#fcfcfb")
+    fig = plt.figure(figsize=(7.2, 12.75), facecolor="#fcfcfb")
     # rows (a-c) | (d-g) | (h, i): tight gap above (d), room above (h, i) for the (d)/(g) axis labels
-    outer = fig.add_gridspec(2, 1, height_ratios=[1, 3.24 * 1.06], hspace=0.06)
+    outer = fig.add_gridspec(2, 1, height_ratios=[1, 3.35 * 1.06], hspace=0.06)
     gs_top = outer[0].subgridspec(1, 3, wspace=0.75)
-    gs_low = outer[1].subgridspec(2, 1, height_ratios=[2.24, 1.0], hspace=0.2)
+    gs_low = outer[1].subgridspec(2, 1, height_ratios=[2.35, 1.0], hspace=0.2)
     scatter_panels = []
     for i, (metric, scale, title, letter) in enumerate((
             ("offtarget_ejected", 1, "Atoms ejected outside target", "a"),
@@ -326,7 +323,7 @@ def main():
     sub = gs_low[0].subgridspec(1, 2, width_ratios=[1, 1.25], wspace=0.35)
     ax_d = fig.add_subplot(sub[0, 0])
     headers = sensitivity(ax_d)
-    col = sub[0, 1].subgridspec(3, 1, height_ratios=[0.9, 0.9, 1.68], hspace=0.12)
+    col = sub[0, 1].subgridspec(3, 1, height_ratios=[0.9, 0.9, 1.85], hspace=0.12)
     m1 = fig.add_subplot(col[0])
     m2 = fig.add_subplot(col[1], sharex=m1)
     profiles(fig.add_subplot(col[2], sharex=m1), (m1, m2))
