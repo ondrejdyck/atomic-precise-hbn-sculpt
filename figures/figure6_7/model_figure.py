@@ -43,7 +43,7 @@ def record_parallel(T, track=None):
     n = 0
     while alive[G.target].any():
         n += 1
-        new = em.eject_tough(alive, G.par_atoms, P, (T, H))
+        new = em.eject_threshold(alive, G.par_atoms, P, (T, H))
         eject_at[alive & ~new] = n
         alive = new
         if track is not None:
@@ -62,7 +62,7 @@ def record_tracking(T, track=None):
         k_want = int(np.floor((x_rear - em.margin_nm(P) - XB0) / d + 1e-9))
         k = min(max(k, k_want), k_max)
         rear.append(XB0 + k * d)
-        new = em.eject_tough(alive, em._track_field(G, P, k)[1], P, (T, H))
+        new = em.eject_threshold(alive, em._track_field(G, P, k)[1], P, (T, H))
         eject_at[alive & ~new] = len(rear)
         alive = new
         if track is not None:
@@ -150,7 +150,7 @@ def panel_c(ax_par, ax_seq, ej_par, ej_seq, rear_seq):
                     arrowprops=dict(arrowstyle="-|>", color=ef.SEQ, lw=1.4))
 
 
-def panel_tough(ax, T):
+def panel_threshold(ax, T):
     """Random ejection threshold: one Exp(1) value per atom, drawn once per sample."""
     x0, x1, y0, y1 = VIEW_A
     keep = in_lat(TOP)
@@ -244,14 +244,14 @@ def main():
     ej_par, _, _, c_par = record_parallel(T)
     ej_seq, rear_seq, _, c_seq = record_tracking(T)
     # sanity: same scan counts as the ensemble code paths
-    assert int(ej_par.max()) == em.run_parallel(G, P, toughness=T)[0]
-    assert len(rear_seq) == em.run_tracking(G, P, toughness=T)[0]
+    assert int(ej_par.max()) == em.run_parallel(G, P, thresholds=T)[0]
+    assert len(rear_seq) == em.run_tracking(G, P, thresholds=T)[0]
 
     fig = plt.figure(figsize=(7.2, 8.4), facecolor="#fcfcfb")
     gs = fig.add_gridspec(4, 2, height_ratios=[0.5, 1.15, 0.8, 0.5], hspace=0.42, wspace=0.14)
     ax_a, ax_b = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
     panel_a(ax_a)
-    panel_tough(ax_b, T)
+    panel_threshold(ax_b, T)
     csub = gs[1, 0].subgridspec(2, 1, hspace=0.06)
     ax_cp, ax_cs = fig.add_subplot(csub[0]), fig.add_subplot(csub[1])
     panel_c(ax_cp, ax_cs, ej_par, ej_seq, rear_seq)

@@ -13,7 +13,7 @@ the target box is shifted by half an atomic-row period (``box_dy``) so that no
 atomic row sits on the box edge, and when the box step does not divide the
 target length the last sequential position is clamped to the target end.
 
-Randomness in the ensemble uses per-atom "toughness" (common random numbers):
+Randomness in the ensemble uses per-atom random ejection thresholds (common random numbers):
 each atom draws T ~ Exp(1) once and is ejected when its accumulated hazard
 H = sum over scans of -ln(1 - P) reaches T. For a single atom this is
 distributionally identical to the notebook's fresh uniform draw each scan
@@ -195,8 +195,8 @@ def eject(alive, dose_atoms, p, rng):
     return alive & ~new
 
 
-def eject_tough(alive, dose_atoms, p, state):
-    """Toughness-based ejection: state = (T, H); H accumulates -ln(1 - P)."""
+def eject_threshold(alive, dose_atoms, p, state):
+    """Threshold-based ejection: state = (T, H); H accumulates -ln(1 - P)."""
     T, H = state
     P = np.minimum(p_eject(alive, p) * dose_atoms * p.k_eject, 1.0)
     with np.errstate(divide="ignore"):
@@ -205,16 +205,16 @@ def eject_tough(alive, dose_atoms, p, state):
     return alive & ~(H >= T)
 
 
-def _ejector(p, rng, toughness):
-    """Per-scan ejection step: notebook-style fresh draws, or shared toughness."""
-    if toughness is None:
+def _ejector(p, rng, thresholds):
+    """Per-scan ejection step: notebook-style fresh draws, or shared random ejection thresholds."""
+    if thresholds is None:
         return lambda alive, dose: eject(alive, dose, p, rng)
-    state = (toughness, np.zeros(len(XY)))
-    return lambda alive, dose: eject_tough(alive, dose, p, state)
+    state = (thresholds, np.zeros(len(XY)))
+    return lambda alive, dose: eject_threshold(alive, dose, p, state)
 
 
-def run_parallel(g: Geometry, p: Params, rng=None, trace=None, toughness=None):
-    step = _ejector(p, rng, toughness)
+def run_parallel(g: Geometry, p: Params, rng=None, trace=None, thresholds=None):
+    step = _ejector(p, rng, thresholds)
     alive = np.ones(len(XY), bool)
     steps = 0
     while alive[g.target].any() and steps < MAX_STEPS - 1:
@@ -227,8 +227,8 @@ def run_parallel(g: Geometry, p: Params, rng=None, trace=None, toughness=None):
     return steps, alive, dose, steps * 1.0
 
 
-def run_sequential(g: Geometry, p: Params, rng=None, trace=None, toughness=None):
-    step = _ejector(p, rng, toughness)
+def run_sequential(g: Geometry, p: Params, rng=None, trace=None, thresholds=None):
+    step = _ejector(p, rng, thresholds)
     alive = np.ones(len(XY), bool)
     steps, pos = 0, 0
     dose = np.zeros_like(g.X)
@@ -264,8 +264,8 @@ def margin_nm(p: Params):
     return p.margin_fwhm * FWHM_PER_SIGMA * p.sigma
 
 
-def run_tracking(g: Geometry, p: Params, rng=None, toughness=None):
-    step = _ejector(p, rng, toughness)
+def run_tracking(g: Geometry, p: Params, rng=None, thresholds=None):
+    step = _ejector(p, rng, thresholds)
     s, d = p.track_width, p.track_step
     k_max = int(round((g.xb[1] - s - g.xb[0]) / d))  # box front at the target end
     alive = np.ones(len(XY), bool)
@@ -306,12 +306,12 @@ def ensemble(p: Params, seeds):
     g = Geometry(p)
     out = {"parallel": [], "sequential": []}
     for s in seeds:
-        # one virtual sample per seed: the same atom toughness for both protocols
+        # one virtual sample per seed: the same ejection thresholds for both protocols
         T = np.random.default_rng(s).exponential(size=len(XY))
-        st, al, d, t = run_parallel(g, p, toughness=T)
+        st, al, d, t = run_parallel(g, p, thresholds=T)
         out["parallel"].append(metrics(g, al, d, st, t))
         run_seq = run_tracking if p.seq_mode == "tracking" else run_sequential
-        st, al, d, t = run_seq(g, p, toughness=T)
+        st, al, d, t = run_seq(g, p, thresholds=T)
         out["sequential"].append(metrics(g, al, d, st, t))
     return {k: {m: np.array([r[m] for r in v]) for m in v[0]} for k, v in out.items()}
 
@@ -361,7 +361,7 @@ def summarize(res):
     for mode, d in res.items():
         rows[mode] = {m: (float(v.mean()), float(v.std()), float(np.median(v))) for m, v in d.items()}
     # paired comparison: fraction of samples (seeds) on which sequential < parallel;
-    # both protocols mill the same virtual sample (shared atom toughness)
+    # both protocols mill the same virtual sample (shared ejection thresholds)
     rows["frac_seq_lower"] = {
         m: float((res["sequential"][m] < res["parallel"][m]).mean()) for m in res["parallel"]
     }

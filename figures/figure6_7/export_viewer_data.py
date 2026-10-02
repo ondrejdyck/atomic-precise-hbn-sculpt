@@ -1,6 +1,6 @@
 """Export scan-by-scan milling histories for the interactive run viewer.
 
-For a handful of samples (shared atom toughness), records when every atom is
+For a handful of samples (shared ejection thresholds), records when every atom is
 ejected under parallel milling and under edge-following ("tracking") milling at
 several box widths, plus the box position at every scan. The viewer
 recomputes dose maps from the box positions with the model's separable
@@ -28,7 +28,7 @@ def history_parallel(g, p, T):
     n = 0
     while alive[g.target].any():
         n += 1
-        new = em.eject_tough(alive, g.par_atoms, p, (T, H))
+        new = em.eject_threshold(alive, g.par_atoms, p, (T, H))
         eject_at[alive & ~new] = n
         alive = new
     return eject_at, [float(g.xb[0])] * n
@@ -45,7 +45,7 @@ def history_tracking(g, p, T):
         k_want = int(np.floor((x_rear - em.margin_nm(p) - g.xb[0]) / d + 1e-9))
         k = min(max(k, k_want), k_max)
         rear.append(float(g.xb[0] + k * d))
-        new = em.eject_tough(alive, em._track_field(g, p, k)[1], p, (T, H))
+        new = em.eject_threshold(alive, em._track_field(g, p, k)[1], p, (T, H))
         eject_at[alive & ~new] = len(rear)
         alive = new
     return eject_at, rear
@@ -99,11 +99,11 @@ def main():
             g = em.Geometry(p)
             ej, rear = history_tracking(g, p, T)
             # cross-check against the ensemble code path
-            st, *_ = em.run_tracking(g, p, toughness=T)
+            st, *_ = em.run_tracking(g, p, thresholds=T)
             assert st == len(rear), (seed, w, st, len(rear))
             runs[f"{w:g}"] = {"eject_at": ej.tolist(), "rear": rear, "width": w}
         data["samples"].append({"label": label, "seed": seed, "why": why,
-                                "toughness": np.round(T, 3).tolist(), "runs": runs})
+                                "threshold": np.round(T, 3).tolist(), "runs": runs})
         print(label, seed, {k: len(v["rear"]) for k, v in runs.items()})
     OUT.write_text(json.dumps(data, separators=(",", ":")))
     print("wrote", OUT, f"{OUT.stat().st_size / 1e3:.0f} kB")

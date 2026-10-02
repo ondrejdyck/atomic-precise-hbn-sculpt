@@ -191,7 +191,7 @@ def profiles(ax, map_axes, letters=("e", "f", "g")):
     for s in range(N_PROFILE_SEEDS):
         T = np.random.default_rng(s).exponential(size=len(em.XY))  # same samples as the ensemble
         for name, fn in (("parallel", em.run_parallel), ("sequential", em.run_tracking)):
-            _, _, d, _ = fn(g, p, toughness=T)
+            _, _, d, _ = fn(g, p, thresholds=T)
             runs[name].append(d[iy])
             maps[name] = maps[name] + d / N_PROFILE_SEEDS
     x = g.x_grid
