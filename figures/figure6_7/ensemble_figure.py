@@ -308,10 +308,10 @@ def heatmap(ax, summary, metric, title, letter, lim, colorbar=True):
 
 def main():
     d = load("baseline:")
-    fig = plt.figure(figsize=(7.2, 12.75), facecolor="#fcfcfb")
+    fig = plt.figure(figsize=(7.2, 12.2), facecolor="#fcfcfb")
     # rows (a-c) | (d-g) | (h, i): tight gap above (d), room above (h, i) for the (d)/(g) axis labels
-    outer = fig.add_gridspec(2, 1, height_ratios=[1, 3.35 * 1.06], hspace=0.06)
-    gs_top = outer[0].subgridspec(1, 3, wspace=0.75)
+    outer = fig.add_gridspec(2, 1, height_ratios=[0.8, 3.35 * 1.06], hspace=0.1)
+    gs_top = outer[0].subgridspec(1, 3, wspace=1.15)
     gs_low = outer[1].subgridspec(2, 1, height_ratios=[2.35, 1.0], hspace=0.2)
     scatter_panels = []
     for i, (metric, scale, title, letter) in enumerate((
