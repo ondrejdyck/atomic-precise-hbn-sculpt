@@ -258,8 +258,8 @@ def main():
     assert int(ej_par.max()) == em.run_parallel(G, P, thresholds=T)[0]
     assert len(rear_seq) == em.run_tracking(G, P, thresholds=T)[0]
 
-    fig = plt.figure(figsize=(7.2, 8.4), facecolor="#fcfcfb")
-    gs = fig.add_gridspec(4, 2, height_ratios=[0.5, 1.15, 0.8, 0.5], hspace=0.42, wspace=0.14)
+    fig = plt.figure(figsize=(7.2, 7.5), facecolor="#fcfcfb")
+    gs = fig.add_gridspec(4, 2, height_ratios=[0.5, 1.15, 0.6, 0.5], hspace=0.26, wspace=0.14)
     ax_a, ax_b = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
     panel_a(ax_a)
     panel_threshold(ax_b, T)
@@ -271,7 +271,7 @@ def main():
     panel_dose(ax_dp, ax_ds, rear_seq[len(rear_seq) // 2])
     t_end = max(int(ej_par.max()) * c_par, len(rear_seq) * c_seq)
     times = np.round(np.array([0.2, 0.45, 0.7, 1.0]) * t_end, 1)
-    esub = gs[2, :].subgridspec(2, len(times), hspace=0.38, wspace=0.06)
+    esub = gs[2, :].subgridspec(2, len(times), hspace=0.2, wspace=0.06)
     axes_e = [[fig.add_subplot(esub[r, c]) for c in range(len(times))] for r in range(2)]
     panel_e(axes_e, ej_par, ej_seq, rear_seq, c_par, c_seq, times)
     fsub = gs[3, :].subgridspec(1, 3, wspace=0.45)
@@ -285,7 +285,7 @@ def main():
            Line2D([], [], ls="", marker="o", ms=4, mfc="none", mec=GONE, label="target atom ejected"),
            Line2D([], [], ls="", marker="o", ms=4, mfc="none", mec=OFF, label="off-target atom ejected")]
     pos = axes_e[1][0].get_position()
-    fig.legend(handles=leg, loc="upper center", bbox_to_anchor=(0.5, pos.y0 - 0.022), ncol=5, fontsize=6.5,
+    fig.legend(handles=leg, loc="upper center", bbox_to_anchor=(0.5, pos.y0 - 0.014), ncol=5, fontsize=6.5,
                frameon=False, handletextpad=0.2, columnspacing=1.0)
     out = ef.OUT / "model_figure.png"
     for ext in ("png", "pdf"):
