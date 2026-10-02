@@ -131,12 +131,20 @@ def panel_c(ax_par, ax_seq, ej_par, ej_seq, rear_seq):
     setup_lattice_ax(ax_par, VIEW_C)
     side_label(ax_par, "parallel", ef.PAR)
     ax_par.set_title("Protocols mid-run", loc="center", color=ef.INK)
-    k = len(rear_seq) // 2
+    # mid-run frame in which the rearmost surviving target atom is in the drawn (top) layer,
+    # so the margin m is measured to an atom the reader can see
+    def rear_is_top(k):
+        alive = (ej_seq == 0) | (ej_seq > k)
+        idx = np.where(alive & G.target)[0]
+        return TOP[idx[np.argmin(em.XY[idx, 0])]]
+    mid = len(rear_seq) // 2
+    k = min((kk for kk in range(len(rear_seq)) if rear_is_top(kk)), key=lambda kk: abs(kk - mid))
     alive = draw_state(ax_seq, ej_seq, k, box=(rear_seq[k], P.track_width), color=ef.SEQ)
     setup_lattice_ax(ax_seq, VIEW_C)
     side_label(ax_seq, "sequential", ef.SEQ)
     r = rear_seq[k]
     x_rear = em.XY[alive & G.target, 0].min()
+    assert TOP[np.where(alive & G.target)[0][np.argmin(em.XY[alive & G.target, 0])]]
     arrow = dict(arrowstyle="<->", color=ef.INK, lw=0.8, shrinkA=0, shrinkB=0)
     y_top, y_bot = LAT[3] + 0.1, LAT[2] - 0.1
     # w above the lattice, m below it, with guide lines down to the box
@@ -144,7 +152,10 @@ def panel_c(ax_par, ax_seq, ej_par, ej_seq, rear_seq):
     ax_seq.text(r + P.track_width / 2, y_top + 0.03, "w", ha="center", va="bottom", fontsize=7.5, style="italic")
     ax_seq.annotate("", (r, y_bot), (x_rear, y_bot), arrowprops=arrow)
     ax_seq.text((r + x_rear) / 2, y_bot - 0.03, "m", ha="center", va="top", fontsize=7.5, style="italic")
-    for xx, y0, y1 in ((r, y_bot, y_top), (r + P.track_width, YB1, y_top), (x_rear, y_bot, YB1)):
+    idx = np.where(alive & G.target)[0]
+    i_rear = idx[np.argmin(em.XY[idx, 0])]
+    ax_seq.scatter(*em.XY[i_rear], s=55, facecolors="none", edgecolors=ef.INK, linewidths=1.0, zorder=5)
+    for xx, y0, y1 in ((r, y_bot, y_top), (r + P.track_width, YB1, y_top), (x_rear, y_bot, em.XY[i_rear, 1])):
         ax_seq.plot([xx, xx], [y0, y1], color=ef.INK, lw=0.5, ls=":")
     ax_seq.annotate("", (r + P.track_width + 0.55, (YB0 + YB1) / 2), (r + P.track_width + 0.1, (YB0 + YB1) / 2),
                     arrowprops=dict(arrowstyle="-|>", color=ef.SEQ, lw=1.4))

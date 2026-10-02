@@ -74,7 +74,7 @@ class Params:
     track_step: float = 0.05  # one dose-grid pixel (nm)
     # tracking box length along the cut (nm); spans the full target height. Keep it a
     # multiple of the 0.05 nm grid so every position covers the same grid columns.
-    track_width: float = 0.75
+    track_width: float = 0.5
     # Vertical shift of the target box from the lattice centre (nm). The notebook
     # uses 0, which puts two atomic rows 0.004 nm outside the box edges; -0.10875
     # (half the 0.2175 nm row period) leaves >= 0.04 nm between each edge and the

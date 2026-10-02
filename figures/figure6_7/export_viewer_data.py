@@ -18,7 +18,7 @@ import numpy as np
 import ensemble_model as em
 
 MARGIN_FWHM = 1.0
-WIDTHS = (0.35, 0.75, 1.5, 3.0)
+WIDTHS = (0.35, 0.5, 1.5, 3.0)
 OUT = em.OUT / "viewer_data.json"
 
 
@@ -52,8 +52,8 @@ def history_tracking(g, p, T):
 
 
 def pick_seeds():
-    """Typical, best, closest-call and highest-peak samples at the 0.75 nm baseline."""
-    key = f"margin_width:margin_fwhm={MARGIN_FWHM:.3g},track_width=0.75"
+    """Typical, best, closest-call and highest-peak samples at the baseline box width."""
+    key = f"margin_width:margin_fwhm={MARGIN_FWHM:.3g},track_width={em.Params().track_width:.3g}"
     d = np.load(em.OUT / f"ensemble_{key.replace(':', '_').replace(',', '_')}.npz")
     adv = 1 - d["sequential__offtarget_ejected"] / d["parallel__offtarget_ejected"]
     peak = d["sequential__offtarget_max"] / d["parallel__offtarget_max"]
