@@ -170,9 +170,10 @@ def sensitivity(ax):
     ax.scatter([], [], color=M_ATOMS, marker="o", label="atoms\nejected")
     ax.scatter([], [], facecolors="#fcfcfb", edgecolors=M_DOSE, linewidths=1.1, marker="D",
                label="dose")
-    ax.legend(loc="lower left", handletextpad=0.3, fontsize=6.5, framealpha=0.95, facecolor="#ffffff",
-              edgecolor="none", borderaxespad=0.3, title="off-target", title_fontsize=6.5,
-              alignment="left")
+    leg = ax.legend(loc="lower left", handletextpad=0.3, fontsize=6.5, framealpha=1, facecolor="#ffffff",
+                    edgecolor=MUTED, frameon=True, fancybox=False, borderaxespad=0.4, title="off-target",
+                    title_fontsize=6.5, alignment="left")
+    leg.get_frame().set_linewidth(0.6)
     ax.set_title("Off-target reduction vs. model parameters", loc="left", color=INK)
     return header_texts
 
@@ -308,10 +309,10 @@ def heatmap(ax, summary, metric, title, letter, lim, colorbar=True):
 
 def main():
     d = load("baseline:")
-    fig = plt.figure(figsize=(7.2, 11.2), facecolor="#fcfcfb")
+    fig = plt.figure(figsize=(7.2, 10.95), facecolor="#fcfcfb")
     # rows (a-c) | (d-g) | (h, i): tight gap above (d), room above (h, i) for the (d)/(g) axis labels
-    outer = fig.add_gridspec(2, 1, height_ratios=[0.8, 2.99 * 1.06], hspace=0.1)
-    gs_top = outer[0].subgridspec(1, 3, wspace=1.15)
+    outer = fig.add_gridspec(2, 1, height_ratios=[0.72, 2.99 * 1.06], hspace=0.1)
+    gs_top = outer[0].subgridspec(1, 3, wspace=1.45)
     gs_low = outer[1].subgridspec(2, 1, height_ratios=[2.35, 0.64], hspace=0.26)
     scatter_panels = []
     for i, (metric, scale, title, letter) in enumerate((
