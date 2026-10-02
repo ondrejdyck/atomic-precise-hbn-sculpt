@@ -68,7 +68,7 @@ def paired(ax, d, metric, scale, title, letter):
     lo, hi = min(x.min(), y.min()), max(x.max(), y.max())
     pad = 0.05 * (hi - lo)
     lim = (lo - pad, hi + pad)
-    ticks = [t for t in MaxNLocator(4).tick_values(*lim) if lim[0] <= t <= lim[1]]
+    ticks = [t for t in MaxNLocator(3).tick_values(*lim) if lim[0] <= t <= lim[1]]
     ax.plot(lim, lim, color=MUTED, lw=1, ls="--", zorder=1)
     ax.scatter(x, y, s=6, color=INK, alpha=0.35, linewidths=0, zorder=2)
     ax.set_xlim(lim)
@@ -309,10 +309,10 @@ def heatmap(ax, summary, metric, title, letter, lim, colorbar=True):
 
 def main():
     d = load("baseline:")
-    fig = plt.figure(figsize=(7.2, 10.35), facecolor="#fcfcfb")
+    fig = plt.figure(figsize=(7.2, 10.05), facecolor="#fcfcfb")
     # rows (a-c) | (d-g) | (h, i): tight gap above (d), room above (h, i) for the (d)/(g) axis labels
-    outer = fig.add_gridspec(2, 1, height_ratios=[0.72, 2.76 * 1.06], hspace=0.13)
-    gs_top = outer[0].subgridspec(1, 3, wspace=1.45)
+    outer = fig.add_gridspec(2, 1, height_ratios=[0.62, 2.76 * 1.06], hspace=0.15)
+    gs_top = outer[0].subgridspec(1, 3, wspace=1.85)
     gs_low = outer[1].subgridspec(2, 1, height_ratios=[2.12, 0.64], hspace=0.26)
     scatter_panels = []
     for i, (metric, scale, title, letter) in enumerate((
